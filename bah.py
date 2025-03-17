@@ -21,7 +21,7 @@ def main():
 
     subprompt = f"""Here's what I want: "{prompt}"
 
-Given the task above, provide multiple bash/zsh commands that accomplish the task, numbered and separated by newlines. Give one command per line, with numbers leading the line. Below each command, add a very short comment (max 10 words) disambiguating it from the others. Add newline in between options. Ensure consistency in formatting. No extra quotes or backticks. Do not introduce your response with any preamble. Give at least one response. For example:
+Given the task above, provide multiple bash/zsh commands that accomplish the task, numbered and separated by newlines. Give one command per line, with numbers leading the line. Below each command, add a very short comment (max 10 words) disambiguating it from the others. Add newline in between options. Ensure consistency in formatting. Do NOT introduce your response with any preamble, and do NOT use markdown backticks. For example:
 If I say "find abc in foo", you respond with:
 1) grep "abc" foo.txt
     ↳ searches for text "abc" in foo.txt
@@ -65,8 +65,8 @@ If I say "choose the second and third columns of a csv and write it to a new csv
                         data = json.loads(line)
                         if first:
                             first = False
-                            continue
-                        if "response" in data and data["response"] != '```':
+                            data["response"] = data["response"].strip()
+                        if "response" in data:
                             print(data["response"], end="", flush=True)
                             options_text.append(data["response"])
                     except json.JSONDecodeError:
@@ -102,10 +102,10 @@ def run_command(options, choice):
     # Execute the selected command
     try:
         result = process_output(options[choice])
+        sys.exit(result)
     except Exception as e:
         print(f"Error executing command: {e}")
-    sys.exit(result)
-
+        sys.exit(1)
 
 def process_output(cmd):
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -149,7 +149,7 @@ def build_dev_context():
         "Directory Listing (ls -lhA)": get_command_output("ls -lhA | head 10"),
         "OS Information": get_command_output("uname -a"),
         "Path": get_command_output("echo $PATH"),
-        "Running Processes": get_command_output("ps -u $(whoami) -o pid,command --sort=-%cpu | head -10"),
+        # "Running Processes": get_command_output("ps -u $(whoami) -o pid,command --sort=-%cpu | head -10"),
         "Git Status": get_command_output("git status --short"),
         "Git Branch": get_command_output("git rev-parse --abbrev-ref HEAD"),
         "Git Commit Hash": get_command_output("git rev-parse HEAD"),
