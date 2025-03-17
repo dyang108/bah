@@ -37,7 +37,7 @@ git clone https://github.com/dyang108/bah.git
 cd bah
 pip install -r requirements.txt
 chmod +x bah.py
-cp bah.py /usr/local/bin/bah
+ln -sf bah.py /usr/local/bin/bah
 ```
 
 ## Configuration
