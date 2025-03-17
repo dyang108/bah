@@ -21,7 +21,7 @@ def main():
 
     subprompt = f"""Here's what I want: "{prompt}"
 
-Given the task above, provide multiple bash/zsh commands that accomplish the task, numbered and separated by newlines. Give one command per line, with numbers leading the line. Below each command, add a very short comment (max 10 words) disambiguating it from the others. Add newline in between options. Ensure consistency in formatting. No extra quotes or backticks. Do not introduce your response with any preamble. For example:
+Given the task above, provide multiple bash/zsh commands that accomplish the task, numbered and separated by newlines. Give one command per line, with numbers leading the line. Below each command, add a very short comment (max 10 words) disambiguating it from the others. Add newline in between options. Ensure consistency in formatting. No extra quotes or backticks. Do not introduce your response with any preamble. Give at least one response. For example:
 If I say "find abc in foo", you respond with:
 1) grep "abc" foo.txt
     ↳ searches for text "abc" in foo.txt
@@ -147,14 +147,15 @@ def build_dev_context():
         "Shell History": get_command_output("HISTTIMEFORMAT='%F %T ' history 10"),
         "Current Directory (pwd)": get_command_output("pwd"),
         "Directory Listing (ls -lhA)": get_command_output("ls -lhA | head 10"),
-        "Environment Variables": get_command_output("env | sort"),
+        "OS Information": get_command_output("uname -a"),
+        "Path": get_command_output("echo $PATH"),
+        "Running Processes": get_command_output("ps -u $(whoami) -o pid,command --sort=-%cpu | head -10"),
         "Git Status": get_command_output("git status --short"),
         "Git Branch": get_command_output("git rev-parse --abbrev-ref HEAD"),
         "Git Commit Hash": get_command_output("git rev-parse HEAD"),
         "Python Version": get_command_output("python --version"),
         "Virtual Environment": get_command_output("echo $VIRTUAL_ENV"),
-        "OS Information": get_command_output("uname -a"),
-        "Running Processes": get_command_output("ps -u $(whoami) -o pid,command --sort=-%cpu | head -10"),
+        # "Environment Variables": get_command_output("env | sort"),
     }
 
     context_str = "\n".join(f"{key}:\n{value}\n" for key, value in context.items())
