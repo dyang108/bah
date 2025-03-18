@@ -7,6 +7,8 @@ import subprocess
 import select
 import pyperclip
 
+TMP_COMMAND_FILE = "/tmp/bah.sh"
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: {} <prompt>".format(sys.argv[0]))
@@ -94,18 +96,18 @@ def run_command(options, choice):
 
         sys.exit(0)
 
-    # Validate choice
+    # After user selects a command (replace run_command call)
     if choice not in options:
         print(f"Invalid choice. Available options: {', '.join(options.keys())}")
         sys.exit(1)
-
-    # Execute the selected command
     try:
-        result = process_output(options[choice])
-        sys.exit(result)
+        # Save command to a temporary file
+        with open(TMP_COMMAND_FILE, "w") as f:
+            f.write(options[choice] + "\n")
     except Exception as e:
-        print(f"Error executing command: {e}")
+        print(f"Error saving command: {e}")
         sys.exit(1)
+    sys.exit(0)
 
 def process_output(cmd):
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
